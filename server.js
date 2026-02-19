@@ -41,7 +41,7 @@ const prepDatabase = async () => {
 // eslint-disable-next-line import/prefer-default-export, import/no-mutable-exports
 export let server;
 
-const initServer = async () => {
+export const initServer = async () => {
   // eslint-disable-next-line global-require
   require('@utils/configureEnv');
   server = Hapi.server(serverConfig);
@@ -119,7 +119,9 @@ const initServer = async () => {
   // Register Wurst plugin
   await loadRoutes.register(server, {
     routes: '**/routes.js',
-    cwd: path.join(__dirname, '../lib/routes'),
+    // cwd: path.join(__dirname, '../lib/routes'),
+      cwd: path.resolve(process.cwd(), 'lib/routes'),
+
     log: true,
     ignore: '**/routes.test.js',
   });
