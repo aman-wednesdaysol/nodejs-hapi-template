@@ -14,6 +14,7 @@ import rateLimiter from 'hapi-rate-limit';
 import rTracer from 'cls-rtracer';
 
 import cors from 'hapi-cors';
+import { shutdownAnalytics } from '@analytics/client';
 import serverConfig from '@config/server';
 import dbConfig from '@config/db';
 import hapiPaginationOptions from '@utils/paginationConstants';
@@ -205,6 +206,12 @@ process.on('unhandledRejection', (err) => {
   // eslint-disable-next-line no-console
   logger().info(err);
   process.exit(1);
+});
+
+process.on('SIGINT', async () => {
+  logger().info('Shutting down gracefully...');
+  await shutdownAnalytics();
+  process.exit(0);
 });
 if (!isTestEnv() && !isLocalEnv() && cluster.isMaster) {
   console.log(`Number of CPUs is ${totalCPUs}`);

@@ -131,6 +131,7 @@ module.exports = (options = {}) => ({
       '@models': path.resolve(__dirname, '../lib/models'),
       '@daos': path.resolve(__dirname, '../lib/daos'),
       '@routes': path.resolve(__dirname, '../lib/routes'),
+      '@analytics': path.resolve(__dirname, '../lib/analytics'),
     },
 
     extensions: ['.js'],
