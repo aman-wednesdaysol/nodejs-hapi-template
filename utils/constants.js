@@ -1,3 +1,6 @@
+import supabaseConfig from '@config/supabase';
+
+
 export const ONE_USER_DATA = {
   id: 1,
   first_name: 'mac',
@@ -40,3 +43,22 @@ export const DEFAULT_METADATA_OPTIONS = {
   scope: SCOPE_TYPE.ADMIN,
   resourceType: OAUTH_CLIENT_ID,
 };
+
+export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
+
+
+// Supabase headers
+
+  export const SB_HEADER = {
+      headers: {
+        apikey: supabaseConfig.anonKey,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    export const BEARER_REGEX = /^Bearer\s+(.+)$/i;
+
+
+    export const SB_ERROR = "Error while signing up with Supabase"
+
+    export const TOKEN_ERROR= "Error while creating access token"

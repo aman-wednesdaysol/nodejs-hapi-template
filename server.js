@@ -119,7 +119,6 @@ export const initServer = async () => {
   // Register Wurst plugin
   await loadRoutes.register(server, {
     routes: '**/routes.js',
-    // cwd: path.join(__dirname, '../lib/routes'),
       cwd: path.resolve(process.cwd(), 'lib/routes'),
 
     log: true,
