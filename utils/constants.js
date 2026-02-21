@@ -47,6 +47,7 @@ export const DEFAULT_METADATA_OPTIONS = {
 
 export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
 
+export const ITUNES_LOOKUP_URL = 'https://itunes.apple.com/lookup';
 
 // Supabase headers
 
@@ -66,9 +67,12 @@ export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
 
     // Music service constants
     export const SEARCH_SONGS_PATH = '/songs';
+    export const SONG_DETAILS_PATH = '/songs/{trackId}';
     export const DEFAULT_LIMIT = 25;
     export const DEFAULT_OFFSET = 0;
     export const DEFAULT_COUNTRY = 'US';
     export const SEARCH_SONGS_DESCRIPTION = 'Search songs';
     export const SEARCH_SONGS_NOTES = 'Search songs using iTunes API';
-
+    export const SONG_DETAILS_DESCRIPTION = 'Get song details';
+    export const SONG_DETAILS_NOTES = 'Get detailed information about a song by trackId from iTunes API';
+    export const SERVICE_UNAVAILABLE_MESSAGE = 'iTunes service unavailable';
