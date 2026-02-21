@@ -74,14 +74,63 @@ An enterprise Hapi template application built using Nodejs showcasing - Testing 
 
 ### Installation
 
--   Install dependencies using npm
-
-    -   `npm install`
+-   Install dependencies using yarn
+    - `npm install -g yarn`
+    -   `yarn install`
 
 ### Setup
 
 -   Run `./scripts/setup-local.sh`
 -   This will seed the data in mysql and run the server.
+-   Server will start on `http://localhost:9000`
+
+
+### Routing 
+
+All routes are organized under the `lib/routes` folder. Any subfolder inside `lib/routes` can contain route files (e.g., `routes.js`).
+
+Routes are automatically loaded using the `loadRoutes` plugin:
+
+```js
+await loadRoutes.register(server, {
+  routes: '**/routes.js',               // finds all routes.js files recursively
+  cwd: path.resolve(process.cwd(), 'lib/routes'), // base folder for scanning
+  log: true,
+  ignore: '**/routes.test.js'           // ignores test files
+});
+
+```
+
+The plugin scans the folder structure, finds all matching route files, and registers them with Hapi using server.route(). Each route file should export either a single route object or an array of route objects.
+
+### Database Seeding
+
+The application uses seeders to populate initial OAuth clients, scopes, resources, and users. After running migrations, seeders are executed in order:
+
+1. **01_oauth_clients.js** - Creates test OAuth2 clients (TEST_CLIENT_ID_0 through TEST_CLIENT_ID_4 with secret TEST_CLIENT_SECRET)
+2. **02_users.js** - Creates test users 
+3. **03_oauth_client_resources.js** - Associates resources with clients 
+4. **04_oauth_client_scopes.js** - Associates scopes (USER, ADMIN, SUPER_ADMIN, INTERNAL_SERVICE) with clients 
+5. **05_oauth_access_token.js** - Pre-seeds sample access tokens
+
+**Important:** Ensure both `oauth_client_scopes` and `oauth_client_resources` have data for each client, otherwise token creation will fail. The seeders handle this automatically.
+
+**Manual seeding (if needed):**
+```bash
+ENVIRONMENT_NAME=local npx sequelize db:seed:all
+```
+
+**To re-seed from scratch:**
+```bash
+ENVIRONMENT_NAME=local npx sequelize db:drop
+ENVIRONMENT_NAME=local npx sequelize db:create
+ENVIRONMENT_NAME=local npx sequelize db:migrate
+npx sequelize db:seed:all
+```
+
+
+### Public URL/API
+- When you do auth: false in options passing to routes array it'll not check the auth token
 
 ### Auto Generate models from database
 
@@ -101,41 +150,84 @@ Install Sequelize:
 
 Full documentation: https://sequelize.readthedocs.io/en/latest/
 
-### MySQL Setup
+## Authentication & Authorization (OAuth2 Client Credentials)
 
-Install MySQL
+This application uses OAuth2 Client Credentials flow for authentication. All protected API endpoints require a valid Bearer token.
 
--   `brew install mysql`
+### Getting an Access Token
 
--   This helps in accessing the database(`temp_dev`)
+**Step 1: Request a token using client credentials**
+```bash
+curl -i -X POST http://localhost:9000/oauth2/tokens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grant_type":"CLIENT_CREDENTIALS",
+    "client_id":"TEST_CLIENT_ID_0",
+    "client_secret":"TEST_CLIENT_SECRET"
+  }'
+```
 
-`ALTER USER '@root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password'`;
+**Response:** JSON object with `accessToken` field (opaque string valid for ~12 hours)
 
-To Access mysql
+**Step 2: Use the token to call protected endpoints**
+```bash
+TOKEN="<access_token_from_step_1>"
+curl -i -H "Authorization: Bearer $TOKEN" http://localhost:9000/users?page=1&limit=10
+```
 
--   `mysql -uroot -p`
--   This will ask for password and the altered password is `password`
+### How Authentication Works
 
--   Start Server
-    `mysql.server start`
+1. **Token Request** (POST /oauth2/tokens):
+   - Validates `client_id` and `client_secret` against `oauth_clients` table
+   - Fetches client metadata (scopes and resources) from `oauth_client_scopes` and `oauth_client_resources`
+   - Creates and stores an access token in `oauth_access_tokens` with expiry
+   - Returns the token to client
 
--   Stop Server
-    `mysql.server stop`
-    
-### redis Setup
+2. **Protected Endpoint Access**:
+   - Client sends `Authorization: Bearer <token>` header
+   - Hapi bearer-auth middleware intercepts and extracts token
+   - `config/auth.js` validates function:
+     - Looks up token in DB and checks expiry
+     - Validates token's scopes/permissions for the requested route via `validateScopeForRoute`
+     - Updates token TTL (sliding window: extends expiry by 1 day with each request)
+   - If valid → route handler executes; if invalid → 401 Unauthorized
 
-Install
- 
-- `brew install redis`
+### Architecture Overview
 
-Start
+**Database Layer** (`lib/daos/` and `lib/models/`):
+- Sequelize ORM models for `users`, `oauth_clients`, `oauth_client_scopes`, `oauth_client_resources`, `oauth_access_tokens`
+- DAO pattern for clean data access: `userDao.js`, `oauthClientsDao.js`, `oauthAccessTokensDao.js`, etc.
+- All queries abstracted behind DAO functions; routes call DAOs, not models directly
 
-- `brew services start redis`
+**Redis Caching** (`utils/cacheConstants.js` and `utils/cacheMethods.js`):
+- Catbox Redis provider configured in `lib/testServer.js` and `server.js`
+- Server methods (e.g., `findOneUser`) cached with TTL (1 month by default)
+- Cache key invalidation available via reset-cache endpoints
 
-Stop
+**Swagger Documentation** (`server.js`):
+- Registered via `hapi-swaggerui` plugin with `inert` and `vision`
+- UI available at `http://localhost:9000/documentation`
+- All routes tagged with API categories for Swagger grouping
+- Templates served from `node_modules/hapi-swaggerui/templates`
 
-- `brew services stop redis`
+**Routing** (`plugins/loadRoutes.js` and `lib/routes/`):
+- Directory-based auto-routing: files under `lib/routes/` are auto-discovered and prefixed
+- Example: `lib/routes/oauth2/tokens/routes.js` → POST /oauth2/tokens
+- Each route exports an array of route objects with handler, method, options, etc. 
 
+**Middleware & Plugins** (`server.js`):
+- Bearer token auth: `hapi-auth-bearer-token` 
+- Rate limiting: `hapi-rate-limit`
+- Pagination: `hapi-pagination`
+- Request ID tracking: `cls-rtracer`
+- CORS: `hapi-cors`
+- Request/response interceptors: snake_case ↔ camelCase conversion, request logging, error handling
+
+
+
+
+### MySql and redis setup
+MySql and redis setup is been handled by docker compose.
 
 ### Migrations
 
@@ -185,3 +277,37 @@ Steps
                 03_alter_student.sql
 
 ```
+
+## Troubleshooting
+
+### Token Request Returns "Error while creating access token"
+
+**Cause:** OAuth client exists but has no scopes or resources in the database.
+
+**Solution:** Ensure the client has at least one scope. Run seeders:
+```bash
+npx sequelize db:seed:all
+```
+
+Or manually add a scope:
+```bash
+mysql -u root -p -h 127.0.0.1 -D temp_dev -e "INSERT INTO oauth_client_scopes (oauth_client_id, scope, created_at) VALUES (1, 'ADMIN', NOW());"
+```
+
+### Seeder Fails with "Function.prototype.apply was called on undefined"
+
+**Cause:** ESM imports in seeders fail in the Sequelize seeder context.
+
+**Solution:** Already fixed in this codebase—seeders now hardcode constants instead of importing them. No action needed.
+
+### Protected Endpoints Return 401 Unauthorized
+
+**Causes:**
+1. Token not included in header: use `Authorization: Bearer <token>` (case-sensitive)
+2. Token expired: request a new token (valid for ~12 hours)
+3. Token has insufficient scopes for the route: verify client scopes match route requirements
+
+**Debug:** Check server logs for `createAccessToken` and `validateScopeForRoute` messages.
+
+
+

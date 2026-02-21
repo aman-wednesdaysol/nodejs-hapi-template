@@ -1,7 +1,6 @@
 const range = require('lodash/range');
-const { OAUTH_CLIENT_ID } = require('esm')(module /* , options */)(
-  '../utils/constants',
-);
+
+const OAUTH_CLIENT_ID = 'OAUTH_CLIENT_ID';
 
 module.exports = {
   up: (queryInterface) => {
