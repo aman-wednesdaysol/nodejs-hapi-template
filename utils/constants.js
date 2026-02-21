@@ -44,6 +44,7 @@ export const DEFAULT_METADATA_OPTIONS = {
   resourceType: OAUTH_CLIENT_ID,
 };
 
+
 export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
 
 
@@ -62,3 +63,12 @@ export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
     export const SB_ERROR = "Error while signing up with Supabase"
 
     export const TOKEN_ERROR= "Error while creating access token"
+
+    // Music service constants
+    export const SEARCH_SONGS_PATH = '/songs';
+    export const DEFAULT_LIMIT = 25;
+    export const DEFAULT_OFFSET = 0;
+    export const DEFAULT_COUNTRY = 'US';
+    export const SEARCH_SONGS_DESCRIPTION = 'Search songs';
+    export const SEARCH_SONGS_NOTES = 'Search songs using iTunes API';
+
