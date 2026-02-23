@@ -124,5 +124,8 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
