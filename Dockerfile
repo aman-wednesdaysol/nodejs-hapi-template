@@ -5,7 +5,8 @@ RUN mkdir -p /app-build
 ADD . /app-build
 WORKDIR /app-build
 RUN yarn --frozen-lockfile
-RUN yarn build:$BUILD_NAME
+RUN yarn build:prod
+
 
 FROM node:20-alpine
 ARG ENVIRONMENT_NAME
