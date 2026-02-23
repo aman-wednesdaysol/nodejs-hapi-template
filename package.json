@@ -17,7 +17,7 @@
     "build:local": "export ENVIRONMENT_NAME=local && rm -rf dist && webpack --mode development --config webpack/dev.config.js",
     "build:docker": "export ENVIRONMENT_NAME=docker && rm -rf dist && webpack --mode development --config  webpack/dev.config.js",
     "build:dev": "export ENVIRONMENT_NAME=development && rm -rf dist && webpack --mode development --config  webpack/dev.config.js",
-    "build:prod": "export ENVIRONMENT_NAME=production && rm -rf dist && webpack --mode production --config webpack/production.config.js",
+    "build:prod": "export ENVIRONMENT_NAME=production && rm -rf dist && yarn webpack --mode production --config webpack/production.config.js",
     "start": "node dist/main.js",
     "start:local": "nodemon",
     "start:dev": "ENVIRONMENT_NAME=development node dist/main.js",
