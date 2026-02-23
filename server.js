@@ -1,12 +1,7 @@
 import Hapi from '@hapi/hapi';
 import path from 'path';
-import cluster from 'cluster';
-import os from 'os';
 import { camelCase, snakeCase } from 'lodash';
-import authBearer from 'hapi-auth-bearer-token';
-import authConfig from '@config/auth';
 import mapKeysDeep from 'map-keys-deep';
-import hapiPagination from 'hapi-pagination';
 import hapiSwaggerUI from 'hapi-swaggerui';
 import inert from '@hapi/inert';
 import vision from '@hapi/vision';
@@ -16,28 +11,9 @@ import rTracer from 'cls-rtracer';
 import cors from 'hapi-cors';
 import { shutdownAnalytics } from '@analytics/client';
 import serverConfig from '@config/server';
-import dbConfig from '@config/db';
-import hapiPaginationOptions from '@utils/paginationConstants';
-import { models } from '@models';
-import { isLocalEnv, isTestEnv, logger } from '@utils';
-import cachedUser from '@utils/cacheMethods';
+import { isTestEnv, logger } from '@utils';
 import loadRoutes from '@plugins/loadRoutes';
 import Pack from './package.json';
-
-const totalCPUs = os.cpus().length;
-
-const prepDatabase = async () => {
-  await models.sequelize
-    .authenticate()
-    .then(() => {
-      // eslint-disable-next-line no-console
-      logger().info('Connection has been established successfully.');
-    })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      logger().error('Unable to connect to the database:', err);
-    });
-};
 
 // eslint-disable-next-line import/prefer-default-export, import/no-mutable-exports
 export let server;
@@ -72,28 +48,12 @@ export const initServer = async () => {
             description: 'Health check endpoint',
           },
           {
-            name: 'users',
-            description: 'User related endpoints',
+            name: 'music',
+            description: 'Music related endpoints',
           },
           {
-            name: 'oauth2-resources',
-            description: 'Oauth2 resources related endpoints',
-          },
-          {
-            name: 'oauth2-scopes',
-            description: 'Oauth2 scopes related endpoints',
-          },
-          {
-            name: 'oauth2-clients',
-            description: 'Oauth2 clients related endpoints',
-          },
-          {
-            name: 'oauth2-tokens',
-            description: 'Oauth2 tokens related endpoints',
-          },
-          {
-            name: 'reset-cache',
-            description: 'Cache invalidation endpoints',
+            name: 'music-library',
+            description: 'Music library related endpoints',
           },
         ],
       },
@@ -104,19 +64,6 @@ export const initServer = async () => {
     plugin: rTracer.hapiPlugin,
   });
 
-  // Register pagignation plugin
-  await server.register({
-    plugin: hapiPagination,
-    options: hapiPaginationOptions,
-  });
-
-  // register auth plugin
-  await server.register({
-    plugin: authBearer
-  });
-  server.auth.strategy('bearer', 'bearer-access-token', authConfig);
-  server.auth.default('bearer');
-
   // Register Wurst plugin
   await loadRoutes.register(server, {
     routes: '**/routes.js',
@@ -125,8 +72,6 @@ export const initServer = async () => {
     log: true,
     ignore: '**/routes.test.js',
   });
-
-  await cachedUser(server);
 
   // Register cors plugin
   await server.register({
@@ -155,7 +100,7 @@ export const initServer = async () => {
     const { response } = request;
     const responseSource = response.source;
     // hack for hapi-swagger
-    if (!["/documentation", "/swaggerui/"].map(p => p.includes(request.path))) { 
+    if (!["/documentation", "/swaggerui/"].map(p => p.includes(request.path))) {
       response.source = mapKeysDeep(responseSource, (keys) => snakeCase(keys));
       if (response.header) {
         const requestId = rTracer.id();
@@ -163,7 +108,7 @@ export const initServer = async () => {
         logger().info('API Success: ', response.source);
       }
     }
-    
+
 
     return h.continue;
   };
@@ -213,34 +158,8 @@ process.on('SIGINT', async () => {
   await shutdownAnalytics();
   process.exit(0);
 });
-if (!isTestEnv() && !isLocalEnv() && cluster.isMaster) {
-  console.log(`Number of CPUs is ${totalCPUs}`);
-  console.log(`Master ${process.pid} is running`);
 
-  // Fork workers.
-  for (let i = 0; i < totalCPUs; i += 1) {
-    cluster.fork();
-  }
-
-  cluster.on('exit', (worker) => {
-    console.log(`worker ${worker.process.pid} died`);
-    console.log("Let's fork another worker!");
-    cluster.fork();
-  });
-} else {
-  prepDatabase().then(
-    () => {
-      // eslint-disable-next-line no-console
-      logger().info(`Database connection to ${dbConfig.url} is successful.\n`);
-      // eslint-disable-next-line no-console
-      logger().info('Initializing the server...');
-
-      return initServer();
-    },
-    (error) => {
-      // eslint-disable-next-line no-console
-      logger().error(error, 'Server startup failed...');
-    }
-  );
-
+if (!isTestEnv()) {
+  logger().info('Initializing the server...');
+  initServer();
 }

@@ -1,6 +1,5 @@
 import Qs from 'qs';
 import { parse } from 'semver';
-import { redisCache } from '@utils/cacheConstants';
 import pkg from '../package.json';
 
 const version = parse(pkg.version);
@@ -14,11 +13,6 @@ export default {
       major: version.major,
       minor: version.minor,
       patch: version.patch,
-    },
-    options: {
-      oauth: {
-        access_token_ttl: 60 * 60 * 12, // seconds * minutes * hours
-      },
     },
   },
   host: '0.0.0.0',
@@ -41,5 +35,4 @@ export default {
     isCaseSensitive: false,
     stripTrailingSlash: true,
   },
-  cache: [redisCache],
 };
