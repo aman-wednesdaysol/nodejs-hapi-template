@@ -4,7 +4,8 @@ ARG BUILD_NAME
 RUN mkdir -p /app-build
 ADD . /app-build
 WORKDIR /app-build
-RUN yarn --frozen-lockfile --network-timeout 100000
+# RUN npm install -g yarn
+RUN yarn --frozen-lockfile --network-timeout 100000 --cache-folder /tmp/yarn-cache
 RUN yarn build:prod
 
 
@@ -16,5 +17,5 @@ ADD package.json /
 ADD . /
 COPY --from=0 /app-build/dist ./dist
 
-CMD ["sh", "./migrate-and-run.sh"]
+CMD ["yarn", "start"]
 EXPOSE 9000
