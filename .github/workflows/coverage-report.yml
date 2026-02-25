@@ -2,7 +2,7 @@ name: Jest Coverage Report with Annotations (CI)
 on:
   pull_request_target:
     branches:
-      - main
+      - "main"
 jobs:
   coverage_report:
     name: Jest Coverage Report

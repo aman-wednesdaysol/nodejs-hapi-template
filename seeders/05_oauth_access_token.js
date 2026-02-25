@@ -1,8 +1,13 @@
 const moment = require('moment');
 const range = require('lodash/range');
-const { SCOPE_TYPE, OAUTH_CLIENT_ID } = require('esm')(module /* , options */)(
-  '../utils/constants'
-);
+
+const SCOPE_TYPE = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  INTERNAL_SERVICE: 'INTERNAL_SERVICE',
+};
+const OAUTH_CLIENT_ID = 'OAUTH_CLIENT_ID';
 const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
