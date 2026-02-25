@@ -1,16 +1,5 @@
 import supabaseConfig from '@config/supabase';
 
-
-export const ONE_USER_DATA = {
-  id: 1,
-  first_name: 'mac',
-  last_name: 'mac',
-  email: 'mac@wednesday.is',
-};
-
-export const GRANT_TYPE = {
-  CLIENT_CREDENTIALS: 'CLIENT_CREDENTIALS',
-};
 export const TIMESTAMP = 'YYYY-MM-DD HH:mm:ss';
 
 export const ACCESS_DENIED = 'ACCESS_DENIED';
@@ -52,6 +41,7 @@ export const DEFAULT_METADATA_OPTIONS = {
 
 export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
 
+export const ITUNES_LOOKUP_URL = 'https://itunes.apple.com/lookup';
 
 // Supabase headers
 
@@ -82,7 +72,6 @@ export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
     export const SERVICE_UNAVAILABLE_MESSAGE = 'iTunes service unavailable';
     export const HAPI_RATE_LIMIT_OPTIONS = 'hapi-rate-limit';
 
-    //Supabase constants
     export const TABLE = 'liked_songs';
     export const SUPABASE_NOT_CONFIGURED = 'Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY.';
 

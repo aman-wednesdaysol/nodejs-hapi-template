@@ -2,7 +2,7 @@ name: Node Hapi Template CI
 on:
   push:
     branches:
-      - main
+      - "**"
   pull_request_target:
 
 jobs:

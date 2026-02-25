@@ -17,7 +17,7 @@
     "build:local": "export ENVIRONMENT_NAME=local && rm -rf dist && webpack --mode development --config webpack/dev.config.js",
     "build:docker": "export ENVIRONMENT_NAME=docker && rm -rf dist && webpack --mode development --config  webpack/dev.config.js",
     "build:dev": "export ENVIRONMENT_NAME=development && rm -rf dist && webpack --mode development --config  webpack/dev.config.js",
-    "build:prod": "export ENVIRONMENT_NAME=production && rm -rf dist && webpack --mode production --config webpack/production.config.js",
+    "build:prod": "export ENVIRONMENT_NAME=production && rm -rf dist && yarn webpack --mode production --config webpack/production.config.js",
     "start": "node dist/main.js",
     "start:local": "nodemon",
     "start:dev": "ENVIRONMENT_NAME=development node dist/main.js",
@@ -39,7 +39,6 @@
   },
   "dependencies": {
     "@babel/register": "^7.23.7",
-    "@hapi/catbox-redis": "^7.0.2",
     "@hapi/hapi": "^21.3.3",
     "@hapi/inert": "^7.1.0",
     "@hapi/joi-date": "^2.0.1",
@@ -50,9 +49,7 @@
     "dotenv": "^16.4.5",
     "esm": "^3.2.25",
     "glob-promise": "^6.0.5",
-    "hapi-auth-bearer-token": "^8.0.0",
     "hapi-cors": "^1.0.3",
-    "hapi-pagination": "^4.0.0",
     "hapi-rate-limit": "^7.1.0",
     "hapi-swaggerui": "https://github.com/wednesday-solutions/hapi-swaggerui/#main",
     "hbs": "^4.2.0",
@@ -62,14 +59,11 @@
     "lodash": "^4.17.21",
     "map-keys-deep": "0.0.2",
     "moment": "^2.30.1",
-    "mysql2": "^3.9.2",
     "nodemon": "^3.1.0",
     "opossum": "^8.1.3",
-    "pg-hstore": "^2.3.4",
     "posthog-node": "^5.24.17",
     "qs": "^6.12.0",
     "semver": "^7.6.0",
-    "sequelize": "^6.37.1",
     "shelljs": "^0.8.5",
     "uuid": "^9.0.1",
     "webpack": "^5.90.3",
@@ -112,9 +106,7 @@
     "path": "^0.12.7",
     "pre-commit": "1.2.2",
     "prettier": "3.2.5",
-    "sequelize-cli": "^6.6.2",
-    "sequelize-mock": "^0.10.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^6.0.1"
   },
   "precommit": "lint:staged",
   "lint-staged": {
@@ -132,5 +124,8 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
