@@ -84,6 +84,25 @@ An enterprise Hapi template application built using Nodejs showcasing - Testing 
 -   This will seed the data in mysql and run the server.
 -   Server will start on `http://localhost:9000`
 
+
+### Routing 
+
+All routes are organized under the `lib/routes` folder. Any subfolder inside `lib/routes` can contain route files (e.g., `routes.js`).
+
+Routes are automatically loaded using the `loadRoutes` plugin:
+
+```js
+await loadRoutes.register(server, {
+  routes: '**/routes.js',               // finds all routes.js files recursively
+  cwd: path.resolve(process.cwd(), 'lib/routes'), // base folder for scanning
+  log: true,
+  ignore: '**/routes.test.js'           // ignores test files
+});
+
+```
+
+The plugin scans the folder structure, finds all matching route files, and registers them with Hapi using server.route(). Each route file should export either a single route object or an array of route objects.
+
 ### Database Seeding
 
 The application uses seeders to populate initial OAuth clients, scopes, resources, and users. After running migrations, seeders are executed in order:
@@ -108,6 +127,10 @@ ENVIRONMENT_NAME=local npx sequelize db:create
 ENVIRONMENT_NAME=local npx sequelize db:migrate
 npx sequelize db:seed:all
 ```
+
+
+### Public URL/API
+- When you do auth: false in options passing to routes array it'll not check the auth token
 
 ### Auto Generate models from database
 
@@ -286,13 +309,5 @@ mysql -u root -p -h 127.0.0.1 -D temp_dev -e "INSERT INTO oauth_client_scopes (o
 
 **Debug:** Check server logs for `createAccessToken` and `validateScopeForRoute` messages.
 
-### Redis Connection Issues
 
-**Check:** 
-```bash
-redis-cli ping
-```
-Should return `PONG`.
-
-**Configuration:** Redis host/port set via `.env.local` or `.env.development` (default: `localhost:6379`)
 
