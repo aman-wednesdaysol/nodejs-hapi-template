@@ -5,6 +5,22 @@ import { mockDB } from '@utils/testUtils';
 import { ONE_USER_DATA } from '@utils/constants';
 import { init } from './lib/testServer';
 
+jest.mock('@analytics/client', () => ({
+  __esModule: true,
+  default: { capture: jest.fn(), shutdown: jest.fn() },
+  shutdownAnalytics: jest.fn(),
+}));
+
+jest.mock('@analytics/tracker', () => ({
+  trackLogin: jest.fn(),
+  trackSignup: jest.fn(),
+  trackLogout: jest.fn(),
+  trackSongSearched: jest.fn(),
+  trackSongLiked: jest.fn(),
+  trackSongUnliked: jest.fn(),
+  trackLibraryViewed: jest.fn(),
+}));
+
 require('jest-extended');
 
 mockDB();

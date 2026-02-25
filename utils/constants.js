@@ -50,8 +50,10 @@ export const DEFAULT_METADATA_OPTIONS = {
   resourceType: OAUTH_CLIENT_ID,
 };
 
+
 export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
 
+export const ITUNES_LOOKUP_URL = 'https://itunes.apple.com/lookup';
 
 // Supabase headers
 
