@@ -82,6 +82,10 @@ export const ITUNES_BASE_URL = 'https://itunes.apple.com/search';
     export const SERVICE_UNAVAILABLE_MESSAGE = 'iTunes service unavailable';
     export const HAPI_RATE_LIMIT_OPTIONS = 'hapi-rate-limit';
 
+    //Supabase constants
+    export const TABLE = 'liked_songs';
+    export const SUPABASE_NOT_CONFIGURED = 'Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY.';
+
     export const METHODS = {
   GET: 'GET',
   POST: 'POST',
